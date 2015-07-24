@@ -24,11 +24,11 @@ namespace Prelude {
 
   // TODO: Inefficient
   template <typename A, typename B>
-  inline auto arrayMap(fn<A,B> f) -> fn<list<A>,list<B>> {
-    return [=](list<A> a) {
-      list<B> b;
+  inline auto arrayMap(fn<A,B> f) -> fn<array<A>,array<B>> {
+    return [=](array<A> a) {
+      array<B> b;
       for (auto it = a.begin(); it != a.end(); ++it) {
-          b = list<B>(b,f(*it));
+          b = array<B>(b,f(*it));
       }
       return b;
     };
@@ -38,11 +38,11 @@ namespace Prelude {
 
   // TODO: Inefficient?
   template <typename A, typename B>
-  inline auto arrayBind(list<A> a) -> fn<fn<A,list<B>>,list<B>> {
-    return [=](fn<A,list<B>> f) {
-      list<B> b;
+  inline auto arrayBind(array<A> a) -> fn<fn<A,array<B>>,array<B>> {
+    return [=](fn<A,array<B>> f) {
+      array<B> b;
       for (auto it = a.begin(); it != a.end(); ++it) {
-          b = list<B>(b,f(*it));
+          b = array<B>(b,f(*it));
       }
       return b;
     };
@@ -57,8 +57,8 @@ namespace Prelude {
   }
 
   template <typename A>
-  inline auto concatArray(list<A> a) -> fn<list<A>,list<A>> {
-    return [=](list<A> b) {
+  inline auto concatArray(array<A> a) -> fn<array<A>,array<A>> {
+    return [=](array<A> b) {
       return a.append(b);
     };
   }
@@ -140,18 +140,18 @@ namespace Prelude {
   }
 
   template <typename A>
-  inline auto eqArrayImpl(fn<A,fn<A,bool>> f) -> fn<list<A>,fn<list<A>,bool>> {
-    return [=](list<A> xs) {
-      return [=](list<A> ys) {
+  inline auto eqArrayImpl(fn<A,fn<A,bool>> f) -> fn<array<A>,fn<array<A>,bool>> {
+    return [=](array<A> xs) {
+      return [=](array<A> ys) {
         return xs == ys;
       };
     };
   }
 
   template <typename A>
-  inline auto ordArrayImpl(fn<A,fn<A,int>> f) -> fn<list<A>,fn<list<A>,int>> {
-    return [=](list<A> xs) {
-      return [=](list<A> ys) {
+  inline auto ordArrayImpl(fn<A,fn<A,int>> f) -> fn<array<A>,fn<array<A>,int>> {
+    return [=](array<A> xs) {
+      return [=](array<A> ys) {
         typename decltype(xs)::size_type i = 0;
         const auto xlen = xs.size();
         const auto ylen = ys.size();
@@ -237,8 +237,8 @@ namespace Prelude {
   }
 
   template <typename A>
-  inline auto showArrayImpl(fn<A,string> f) -> fn<list<A>,string> {
-    return [=](list<A> xs) -> string {
+  inline auto showArrayImpl(fn<A,string> f) -> fn<array<A>,string> {
+    return [=](array<A> xs) -> string {
       string s("[");
       auto count = xs.size();
       for (auto it = xs.begin(); it != xs.end(); ++it) {
