@@ -15,7 +15,7 @@
 #ifndef Prelude_FFI_HH
 #define Prelude_FFI_HH
 
-#include "Purescript/Purescript.hh"
+#include "PureScript/PureScript.hh"
 
 namespace Prelude {
   using namespace PureScript;
