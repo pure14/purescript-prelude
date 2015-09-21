@@ -22,137 +22,148 @@ namespace Prelude {
 
   //- Functor --------------------------------------------------------------------
 
-  // TODO: Inefficient
-  template <typename A, typename B>
-  inline auto arrayMap(const fn<A,B>& f) -> fn<array<A>,array<B>> {
-    return [=](const array<A>& a) {
-      array<B> b;
-      for (auto it = a.begin(); it != a.end(); ++it) {
-          b = array<B>(b,f(*it));
+  inline auto arrayMap(const any& f) -> any {
+    return [=](const any& a) {
+      const any::vector& as = a;
+      any::vector bs;
+      for (auto it = as.begin(); it != as.end(); ++it) {
+          bs.push_back(f(*it));
       }
-      return b;
+      return bs;
     };
   }
 
   //- Bind -----------------------------------------------------------------------
 
-  // TODO: Inefficient?
-  template <typename A, typename B>
-  inline auto arrayBind(const array<A>& a) -> fn<fn<A,array<B>>,array<B>> {
-    return [=](const fn<A,array<B>>& f) {
-      array<B> b;
-      for (auto it = a.begin(); it != a.end(); ++it) {
-          b = array<B>(b,f(*it));
+  inline auto arrayBind(const any& a) -> any {
+    return [=](const any& f) {
+      const any::vector& as = a;
+      any::vector bs;
+      for (auto it = as.begin(); it != as.end(); ++it) {
+        any::vector xs = f(*it);
+        bs.insert(bs.end(), xs.begin(), xs.end());
       }
-      return b;
+      return bs;
     };
   }
 
   //- Monoid ---------------------------------------------------------------------
 
-  inline auto concatString(const string& x) -> fn<string,string> {
-    return [=](const string& y) {
-      return x + y;
+  inline auto concatString(const any& s1) -> any {
+    return [=](const any& s2) {
+      return s1 + s2;
     };
   }
 
-  template <typename A>
-  inline auto concatArray(const array<A>& a) -> fn<array<A>,array<A>> {
-    return [=](const array<A>& b) {
-      return a.append(b);
+  inline auto concatArray(const any& a) -> any {
+    return [=](const any& b) {
+      any::vector xs = a; // makes a copy
+      const any::vector& ys = b;
+      xs.insert(xs.end(), ys.begin(), ys.end());
+      return xs;
     };
   }
 
   //- Semiring -------------------------------------------------------------------
 
-  inline auto intAdd(const int x) -> fn<int,int> {
-    return [=](const int y) {
+  inline auto intAdd(const any& x) -> any {
+    return [=](const any& y) {
       return x + y;
     };
   }
 
-  inline auto intMul(const int x) -> fn<int,int> {
-    return [=](const int y) {
+  inline auto intMul(const any& x) -> any {
+    return [=](const any& y) {
       return x * y;
     };
   }
 
-  inline auto numAdd(const double x) -> fn<double,double> {
-    return [=](const double y) {
+  inline auto numAdd(const any& x) -> any {
+    return [=](const any& y) {
       return x + y;
     };
   }
 
-  inline auto numMul(const double x) -> fn<double,double> {
-    return [=](const double y) {
+  inline auto numMul(const any& x) -> any {
+    return [=](const any& y) {
       return x * y;
     };
   }
 
   //- ModuloSemiring -------------------------------------------------------------
 
-  inline auto intDiv(const int x) -> fn<int,int> {
-    return [=](const int y) {
+  inline auto intDiv(const any& x) -> any {
+    return [=](const any& y) {
       return x / y;
     };
   }
 
-  inline auto intMod(const int x) -> fn<int,int> {
-    return [=](const int y) {
+  inline auto intMod(const any& x) -> any {
+    return [=](const any& y) {
       return x % y;
     };
   }
 
-  inline auto numDiv(const double x) -> fn<double,double> {
-    return [=](const double y) {
+  inline auto numDiv(const any& x) -> any {
+    return [=](const any& y) {
       return x / y;
     };
   }
 
   //- Ring -----------------------------------------------------------------------
 
-  inline auto intSub(const int x) -> fn<int,int> {
-    return [=](const int y) {
+  inline auto intSub(const any& x) -> any {
+    return [=](const any& y) {
       return x - y;
     };
   }
 
-  inline auto numSub(const double x) -> fn<double,double> {
-    return [=](const double y) {
+  inline auto numSub(const any& x) -> any {
+    return [=](const any& y) {
       return x - y;
     };
   }
 
   //- Eq -------------------------------------------------------------------------
 
-  template <typename T>
-  inline auto refEq(param<T> ref1) -> fn<T,bool> {
-    return [=](param<T> ref2) {
+  inline auto refEq(const any& ref1) -> any {
+    return [=](const any& ref2) {
       return ref1 == ref2;
     };
   }
 
-  template <typename T>
-  inline auto refIneq(param<T> ref1) -> fn<T,bool> {
-    return [=](param<T> ref2) {
+  inline auto refIneq(const any& ref1) -> any {
+    return [=](const any& ref2) {
       return ref1 != ref2;
     };
   }
 
-  template <typename A>
-  inline auto eqArrayImpl(const fn<A,fn<A,bool>>& f) -> fn<array<A>,fn<array<A>,bool>> {
-    return [=](const array<A>& xs) {
-      return [=](const array<A>& ys) {
-        return xs == ys;
+  inline auto eqArrayImpl(const any& f) -> any {
+    return [=](const any& xs_) {
+      return [=](const any& ys_) {
+        const any::vector& xs = xs_;
+        const any::vector& ys = ys_;
+        const auto xs_size = xs.size();
+        if (xs_size != ys.size()) {
+          return false;
+        }
+        for (any::vector::size_type i = 0; i < xs_size; i++) {
+          const auto res = f(xs[i])(ys[i]);
+          if (!res.cast<bool>()) {
+            return false;
+          }
+        }
+        return true;
       };
     };
   }
 
-  template <typename A>
-  inline auto ordArrayImpl(const fn<A,fn<A,int>>& f) -> fn<array<A>,fn<array<A>,int>> {
-    return [=](const array<A>& xs) {
-      return [=](const array<A>& ys) {
-        typename decltype(xs)::size_type i = 0;
+  inline auto ordArrayImpl(const any& f) -> any {
+    return [=](const any& xs_) -> any {
+      return [=](const any& ys_) -> any {
+        const any::vector& xs = xs_;
+        const any::vector& ys = ys_;
+        any::vector::size_type i = 0;
         const auto xlen = xs.size();
         const auto ylen = ys.size();
         while (i < xlen && i < ylen) {
@@ -177,17 +188,11 @@ namespace Prelude {
 
   //- Ord ------------------------------------------------------------------------
 
-  namespace type {
-    struct Ordering;
-  }
-
-  template <typename T>
-  inline auto unsafeCompareImpl(const managed<type::Ordering>& lt) ->
-      fn<managed<type::Ordering>,fn<managed<type::Ordering>,fn<T,fn<T,managed<type::Ordering>>>>> {
-    return [=](const managed<type::Ordering>& eq) -> fn<managed<type::Ordering>,fn<T,fn<T,managed<type::Ordering>>>> {
-      return [=](const managed<type::Ordering>& gt) -> fn<T,fn<T,managed<type::Ordering>>> {
-        return [=](param<T> x) -> fn<T,managed<type::Ordering>> {
-          return [=](param<T> y) -> managed<type::Ordering> {
+  inline auto unsafeCompareImpl(const any& lt) -> any {
+    return [=](const any& eq) -> any {
+      return [=](const any& gt) -> any {
+        return [=](const any& x) -> any {
+          return [=](const any& y) -> any {
             return x < y ? lt : x > y ? gt : eq;
           };
         };
@@ -197,48 +202,48 @@ namespace Prelude {
 
   //- Lattice --------------------------------------------------------------------
 
-  inline auto boolOr(const bool x) -> fn<bool,bool> {
-    return [=](const bool y) {
-      return x || y;
+  inline auto boolOr(const any& x) -> any {
+    return [=](const any& y) -> any {
+      return x.cast<bool>() || y.cast<bool>();
     };
   }
 
-  inline auto boolAnd(const bool x) -> fn<bool,bool> {
-    return [=](const bool y) {
-      return x && y;
+  inline auto boolAnd(const any& x) -> any {
+    return [=](const any& y) -> any {
+      return x.cast<bool>() && y.cast<bool>();
     };
   }
 
   //- ComplementedLattice --------------------------------------------------------
 
-  inline auto boolNot(const bool x) -> bool {
-    return !x;
+  inline auto boolNot(const any& x) -> any {
+    return !x.cast<bool>();
   }
 
   //- Show -----------------------------------------------------------------------
 
-  inline auto showIntImpl(const int x) -> string {
-    return std::to_string(x);
+  inline auto showIntImpl(const any& x) -> any {
+    return std::to_string(x.cast<long>());
   }
 
-  inline auto showNumberImpl(const double x) -> string {
-    return std::to_string(x);
+  inline auto showNumberImpl(const any& x) -> any {
+    return std::to_string(x.cast<double>());
   }
 
-  inline auto showCharImpl(const char c) -> string {
+  inline auto showCharImpl(const any& c) -> any {
     string s("'");
-    s.push_back(c);
+    s.push_back(c.cast<char>());
     s.push_back('\'');
     return s;
   }
 
-  inline auto showStringImpl(const string& s) -> string {
-    return '"' + s + '"';
+  inline auto showStringImpl(const any& s) -> any {
+    return '"' + s.cast<string>() + '"';
   }
 
-  template <typename A>
-  inline auto showArrayImpl(const fn<A,string>& f) -> fn<array<A>,string> {
-    return [=](const array<A>& xs) -> string {
+  inline auto showArrayImpl(const any& f) -> any {
+    return [=](const any& xs_) -> any {
+      const any::vector& xs = xs_;
       string s("[");
       auto count = xs.size();
       for (auto it = xs.begin(); it != xs.end(); ++it) {
