@@ -23,7 +23,7 @@ namespace Prelude {
   //- Functor --------------------------------------------------------------------
 
   inline auto arrayMap(const any& f) -> any {
-    return [=](const any& a) {
+    return [=](const any& a) -> any {
       const any::vector& as = a;
       any::vector bs;
       for (auto it = as.begin(); it != as.end(); ++it) {
@@ -36,7 +36,7 @@ namespace Prelude {
   //- Bind -----------------------------------------------------------------------
 
   inline auto arrayBind(const any& a) -> any {
-    return [=](const any& f) {
+    return [=](const any& f) -> any {
       const any::vector& as = a;
       any::vector bs;
       for (auto it = as.begin(); it != as.end(); ++it) {
@@ -50,13 +50,13 @@ namespace Prelude {
   //- Monoid ---------------------------------------------------------------------
 
   inline auto concatString(const any& s1) -> any {
-    return [=](const any& s2) {
+    return [=](const any& s2) -> any {
       return s1 + s2;
     };
   }
 
   inline auto concatArray(const any& a) -> any {
-    return [=](const any& b) {
+    return [=](const any& b) -> any {
       any::vector xs = a; // makes a copy
       const any::vector& ys = b;
       xs.insert(xs.end(), ys.begin(), ys.end());
@@ -67,25 +67,25 @@ namespace Prelude {
   //- Semiring -------------------------------------------------------------------
 
   inline auto intAdd(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x + y;
     };
   }
 
   inline auto intMul(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x * y;
     };
   }
 
   inline auto numAdd(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x + y;
     };
   }
 
   inline auto numMul(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x * y;
     };
   }
@@ -93,19 +93,19 @@ namespace Prelude {
   //- ModuloSemiring -------------------------------------------------------------
 
   inline auto intDiv(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x / y;
     };
   }
 
   inline auto intMod(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x % y;
     };
   }
 
   inline auto numDiv(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x / y;
     };
   }
@@ -113,13 +113,13 @@ namespace Prelude {
   //- Ring -----------------------------------------------------------------------
 
   inline auto intSub(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x - y;
     };
   }
 
   inline auto numSub(const any& x) -> any {
-    return [=](const any& y) {
+    return [=](const any& y) -> any {
       return x - y;
     };
   }
@@ -127,20 +127,20 @@ namespace Prelude {
   //- Eq -------------------------------------------------------------------------
 
   inline auto refEq(const any& ref1) -> any {
-    return [=](const any& ref2) {
+    return [=](const any& ref2) -> any {
       return ref1 == ref2;
     };
   }
 
   inline auto refIneq(const any& ref1) -> any {
-    return [=](const any& ref2) {
+    return [=](const any& ref2) -> any {
       return ref1 != ref2;
     };
   }
 
   inline auto eqArrayImpl(const any& f) -> any {
-    return [=](const any& xs_) {
-      return [=](const any& ys_) {
+    return [=](const any& xs_) -> any {
+      return [=](const any& ys_) -> any {
         const any::vector& xs = xs_;
         const any::vector& ys = ys_;
         const auto xs_size = xs.size();
