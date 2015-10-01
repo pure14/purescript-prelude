@@ -170,7 +170,7 @@ namespace Prelude {
           const auto x = xs[i];
           const auto y = ys[i];
           const auto o = f(x)(y);
-          if (o != 0) {
+          if (o != 0L) {
             return o;
           }
           i++;
