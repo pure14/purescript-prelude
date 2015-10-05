@@ -37,10 +37,11 @@ namespace Prelude {
 
   inline auto arrayBind(const any& a) -> any {
     return [=](const any& f) -> any {
-      const any::vector& as = a;
+      const auto& as = a.cast<any::vector>();
       any::vector bs;
       for (auto it = as.begin(); it != as.end(); ++it) {
-        any::vector xs = f(*it);
+        auto xs_ = f(*it);
+        const auto& xs = xs_.cast<any::vector>();
         bs.insert(bs.end(), xs.begin(), xs.end());
       }
       return bs;
@@ -57,8 +58,8 @@ namespace Prelude {
 
   inline auto concatArray(const any& a) -> any {
     return [=](const any& b) -> any {
-      any::vector xs = a; // makes a copy
-      const any::vector& ys = b;
+      any::vector xs(a.cast<any::vector>()); // makes a copy
+      const auto& ys = b.cast<any::vector>();
       xs.insert(xs.end(), ys.begin(), ys.end());
       return xs;
     };
@@ -141,8 +142,8 @@ namespace Prelude {
   inline auto eqArrayImpl(const any& f) -> any {
     return [=](const any& xs_) -> any {
       return [=](const any& ys_) -> any {
-        const any::vector& xs = xs_;
-        const any::vector& ys = ys_;
+        const auto& xs = xs_.cast<any::vector>();
+        const auto& ys = ys_.cast<any::vector>();
         const auto xs_size = xs.size();
         if (xs_size != ys.size()) {
           return false;
@@ -161,8 +162,8 @@ namespace Prelude {
   inline auto ordArrayImpl(const any& f) -> any {
     return [=](const any& xs_) -> any {
       return [=](const any& ys_) -> any {
-        const any::vector& xs = xs_;
-        const any::vector& ys = ys_;
+        const auto& xs = xs_.cast<any::vector>();
+        const auto& ys = ys_.cast<any::vector>();
         any::vector::size_type i = 0;
         const auto xlen = xs.size();
         const auto ylen = ys.size();
@@ -243,7 +244,7 @@ namespace Prelude {
 
   inline auto showArrayImpl(const any& f) -> any {
     return [=](const any& xs_) -> any {
-      const any::vector& xs = xs_;
+      const auto& xs = xs_.cast<any::vector>();
       string s("[");
       auto count = xs.size();
       for (auto it = xs.begin(); it != xs.end(); ++it) {
