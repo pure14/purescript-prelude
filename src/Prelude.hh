@@ -22,31 +22,11 @@ namespace Prelude {
 
   //- Functor --------------------------------------------------------------------
 
-  inline auto arrayMap(const any& f) -> any {
-    return [=](const any& a) -> any {
-      const any::vector& as = a;
-      any::vector bs;
-      for (auto it = as.begin(); it != as.end(); ++it) {
-          bs.push_back(f(*it));
-      }
-      return bs;
-    };
-  }
+  auto arrayMap(const any&) -> any;
 
   //- Bind -----------------------------------------------------------------------
 
-  inline auto arrayBind(const any& a) -> any {
-    return [=](const any& f) -> any {
-      const auto& as = a.cast<any::vector>();
-      any::vector bs;
-      for (auto it = as.begin(); it != as.end(); ++it) {
-        auto xs_ = f(*it);
-        const auto& xs = xs_.cast<any::vector>();
-        bs.insert(bs.end(), xs.begin(), xs.end());
-      }
-      return bs;
-    };
-  }
+  auto arrayBind(const any&) -> any;
 
   //- Monoid ---------------------------------------------------------------------
 
@@ -56,14 +36,7 @@ namespace Prelude {
     };
   }
 
-  inline auto concatArray(const any& a) -> any {
-    return [=](const any& b) -> any {
-      any::vector xs(a.cast<any::vector>()); // makes a copy
-      const auto& ys = b.cast<any::vector>();
-      xs.insert(xs.end(), ys.begin(), ys.end());
-      return xs;
-    };
-  }
+  auto concatArray(const any&) -> any;
 
   //- Semiring -------------------------------------------------------------------
 
@@ -139,67 +112,13 @@ namespace Prelude {
     };
   }
 
-  inline auto eqArrayImpl(const any& f) -> any {
-    return [=](const any& xs_) -> any {
-      return [=](const any& ys_) -> any {
-        const auto& xs = xs_.cast<any::vector>();
-        const auto& ys = ys_.cast<any::vector>();
-        const auto xs_size = xs.size();
-        if (xs_size != ys.size()) {
-          return false;
-        }
-        for (any::vector::size_type i = 0; i < xs_size; i++) {
-          const auto res = f(xs[i])(ys[i]);
-          if (!res.cast<bool>()) {
-            return false;
-          }
-        }
-        return true;
-      };
-    };
-  }
+  auto eqArrayImpl(const any&) -> any;
 
-  inline auto ordArrayImpl(const any& f) -> any {
-    return [=](const any& xs_) -> any {
-      return [=](const any& ys_) -> any {
-        const auto& xs = xs_.cast<any::vector>();
-        const auto& ys = ys_.cast<any::vector>();
-        any::vector::size_type i = 0;
-        const auto xlen = xs.size();
-        const auto ylen = ys.size();
-        while (i < xlen && i < ylen) {
-          const auto x = xs[i];
-          const auto y = ys[i];
-          const auto o = f(x)(y);
-          if (o != 0L) {
-            return o;
-          }
-          i++;
-        }
-        if (xlen == ylen) {
-          return 0;
-        } else if (xlen > ylen) {
-          return -1;
-        } else {
-          return 1;
-        }
-      };
-    };
-  }
+  auto ordArrayImpl(const any&) -> any;
 
   //- Ord ------------------------------------------------------------------------
 
-  inline auto unsafeCompareImpl(const any& lt) -> any {
-    return [=](const any& eq) -> any {
-      return [=](const any& gt) -> any {
-        return [=](const any& x) -> any {
-          return [=](const any& y) -> any {
-            return x < y ? lt : x > y ? gt : eq;
-          };
-        };
-      };
-    };
-  }
+  auto unsafeCompareImpl(const any&) -> any;
 
   //- Lattice --------------------------------------------------------------------
 
@@ -231,32 +150,11 @@ namespace Prelude {
     return std::to_string(x.cast<double>());
   }
 
-  inline auto showCharImpl(const any& c) -> any {
-    string s("'");
-    s.push_back(c.cast<char>());
-    s.push_back('\'');
-    return s;
-  }
+  auto showCharImpl(const any&) -> any;
 
-  inline auto showStringImpl(const any& s) -> any {
-    return '"' + s.cast<string>() + '"';
-  }
+  auto showStringImpl(const any& s) -> any;
 
-  inline auto showArrayImpl(const any& f) -> any {
-    return [=](const any& xs_) -> any {
-      const auto& xs = xs_.cast<any::vector>();
-      string s("[");
-      auto count = xs.size();
-      for (auto it = xs.begin(); it != xs.end(); ++it) {
-        s.append(f(*it));
-        if (--count > 0) {
-          s.push_back(',');
-        }
-      }
-      s.push_back(']');
-      return s;
-    };
-  }
+  auto showArrayImpl(const any& f) -> any;
 
 }
 
